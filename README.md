@@ -5,7 +5,7 @@
 IBM i の標準的な機能を利用したサンプルプログラム集です。
 業務をモダナイゼーションするヒントになるかもしれません。
 
-<img src="デモ画面サンプル.gif" alt="attach:cat" title="attach:cat" width="200" height="200">
+<img src="デモ画面サンプル.gif" width="720" height="462">
 
 ## Requirement
 
