@@ -6,7 +6,7 @@ IBM i の標準的な機能を利用したサンプルプログラム集です�
 業務をモダナイゼーションするヒントになるかもしれません。  
 関連する動画を[YouTube](https://www.youtube.com/channel/UCXXqyqBk5spc4L95gJj-OGA/)に投稿しています。
 
-<img src="デモ画面サンプル.gif" width="640">
+<img src="デモ画面サンプル.gif" width="60">
 
 ## Requirement
 
