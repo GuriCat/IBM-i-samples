@@ -3,9 +3,10 @@
 ## Overview
 
 IBM i の標準的な機能を利用したサンプルプログラム集です。
-業務をモダナイゼーションするヒントになるかもしれません。
+業務をモダナイゼーションするヒントになるかもしれません。  
+関連する動画を[YouTube](https://www.youtube.com/channel/UCXXqyqBk5spc4L95gJj-OGA/)に投稿しています。
 
-<img src="デモ画面サンプル.gif" width="720" height="462">
+<img src="デモ画面サンプル.gif" width="640">
 
 ## Requirement
 
@@ -27,13 +28,13 @@ IBM i 7.4、7.5で動作を確認しています。
 
 詳しくは各カテゴリーの説明を参照ください。
 
-### 1.5250画面の活用
+### 5250画面の活用
 
 [LM5250]
 
 5250画面のモダナイゼーション(DDS-GUI、132/80桁の両対応、ハイパーリンク、など)
 
-### 1.ワンアクション連携
+### ワンアクション連携
 
 [OADEMO]
 
@@ -43,19 +44,19 @@ PFMからPFを選択し、整形済みExcelを表示
 
 RPG+DDSで、画像・QRコード・罫線・アウトラインフォントを含む高品質PDFを生成
 
-### 1.オープンソース活用
+### オープンソース活用
 
 [OSSDEMO]
 
 PythonでDb2 for i のデータをグラフ化(棒グラフ、複合グラフ、地図[コロプレスマップ])
 
-### 1.複数区画／サーバー集中管理
+### 複数区画／サーバー集中管理
 
 [IBMISVC]
 
 複数サーバー/区画の状況(CPU使用率、ディスク容量利用率、システム時刻、IPL日時など)を一覧表示
 
-### 1.IBM i で全文検索
+### IBM i で全文検索
 
 [OFSAMPLE]
 
@@ -63,9 +64,8 @@ IFSのPC文書やスプールファイルを全文検索。5250画面あるい�
 
 ## Author
 
-[twitter](https://twitter.com/GuriCatNyan)
-
-[YouTube](https://www.youtube.com/channel/UCXXqyqBk5spc4L95gJj-OGA/)
+[twitter Guri@GuriCatNyan](https://twitter.com/GuriCatNyan)  
+[YouTubeの「ぐりちゃんねる」](https://www.youtube.com/channel/UCXXqyqBk5spc4L95gJj-OGA/)
 
 ## Licence
 
