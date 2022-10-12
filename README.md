@@ -5,6 +5,8 @@
 IBM i の標準的な機能を利用したサンプルプログラム集です。
 業務をモダナイゼーションするヒントになるかもしれません。
 
+<img src="デモ画面サンプル.gif" alt="attach:cat" title="attach:cat" width="200" height="200">
+
 ## Requirement
 
 IBM i 7.4、7.5で動作を確認しています。
@@ -63,10 +65,9 @@ IFSのPC文書やスプールファイルを全文検索。5250画面あるい�
 
 ## Licence
 
-[The MIT License](https://opensource.org/licenses/mit-license.php) [日本語訳](https://licenses.opensource.jp/MIT/MIT.html)
+[The MIT License](https://opensource.org/licenses/mit-license.php)  
+[日本語訳(参考)](https://licenses.opensource.jp/MIT/MIT.html)
 
-  Begin license text.
-  
   Copyright 2022 Hideyuki Yahagi  
   
   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  
@@ -75,5 +76,4 @@ IFSのPC文書やスプールファイルを全文検索。5250画面あるい�
   
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  
   
-  End license text.
 
