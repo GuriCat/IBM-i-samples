@@ -1,0 +1,51 @@
+             /*コンパイル方法                                      +     
+                CRTBNDCL PGM(OFSTART) SRCFILE(OFDEMO) USRPRF(*OWNER)  */   
+                                                                           
+             PGM                                                           
+             DCL        VAR(&JOBCCSID) TYPE(*DEC) LEN(5 0)                 
+             DCL        VAR(&NBRCURRCD) TYPE(*DEC) LEN(10 0)               
+                                                                           
+             /*全文検索エンジンとWebサービス(Node.js)の起動チェック*/
+                                                                           
+             RTVJOBA    CCSID(&JOBCCSID)                                   
+             CHGJOB     CCSID(1399)                                        
+                                                                           
+             RUNSQL     SQL( +                                             
+              'CREATE OR REPLACE TABLE QTEMP.NODEJOB ( +                   
+                     JOB_NAME_SHORT VARCHAR(10),       +                   
+                     JOB_TYPE VARCHAR(3),              +                   
+                     FUNCTION_TYPE VARCHAR(3),         +                   
+                     FUNCTION VARCHAR(10),             +                   
+                     JOB_STATUS VARCHAR(4)             +                   
+                  )                                   +                
+                ON REPLACE DELETE ROWS')              +                
+                       COMMIT(*NC)                                     
+                                                                       
+            RUNSQL     SQL( +                                          
+             'INSERT INTO QTEMP.NODEJOB                               +
+                SELECT JOB_NAME_SHORT,                                +
+                       JOB_TYPE,                                      +
+                       FUNCTION_TYPE,                                 +
+                       FUNCTION,                                      +
+                       JOB_STATUS                                     +
+                  FROM TABLE (                                        +
+                      QSYS2.ACTIVE_JOB_INFO(DETAILED_INFO => ''ALL'') +
+                    )                                                 +
+                  WHERE JOB_NAME_SHORT = ''OMNINODE''                 +
+                        AND JOB_TYPE = ''BCI''                        +
+                        AND JOB_STATUS = ''SELW''')                   +
+                       COMMIT(*NC)                                     
+                                                                       
+            RTVMBRD    FILE(QTEMP/NODEJOB) NBRCURRCD(&NBRCURRCD)
+            IF         COND(&NBRCURRCD = 0) THEN(DO)            
+            RUNSQL     SQL('CALL SYSPROC.SYSTS_START()')        
+            MONMSG     MSGID(CPF0000)                           
+            SBMJOB     CMD(CALL PGM(QP2SHELL) +                 
+                         PARM(('/QOpenSys/pkgs/bin/bash') +     
+                         ('/home/GURI/ofdemo/start.sh'))) +     
+                         JOB(OMNINODE) CCSID(1399)              
+            ENDDO                                               
+                                                                
+            CHGJOB     CCSID(&JOBCCSID)                         
+                                                                
+            ENDPGM                                              

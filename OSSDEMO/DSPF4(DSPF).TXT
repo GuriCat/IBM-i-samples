@@ -1,0 +1,101 @@
+      * DDS WINDOW使用のためコンパイル時はCRTDSPFに下記パラメーターを指定。
+      *
+      *   画面復元 . . . . . . . . . . . RSTDSP         *YES
+      *   書き出し据え置き . . . . . . . DFRWRT         *NO
+      *
+      *ファイルレベル・キーワード
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CA03(03 '終了')
+     A                                      PRINT
+      *レコード定義
+      *
+     A          R DSPF4R
+      *
+      *ヘッダー
+     A                                  1  2'DSPF4'
+     A            PGMNAM        10A  O  1  8COLOR(WHT)
+     A                                  1 63DATE
+     A                                      EDTCDE(Y)
+     A                                  1 72TIME
+     A                                  3 31'＊登録状況グラフ＊'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(RI)
+     A                                  6 15'グラフ種：'
+     A                                      COLOR(WHT)
+     A            GPHT           2Y 0B  6 32SNGCHCFLD((*NUMCOL 2))
+     A  49                                  DSPATR(RI)
+     A  49                                  ERRMSGID(CPF9897 *LIBL/QCPFMSG 50 &-
+     A                                      MSGDTA)
+     A                                      CHOICE(1 '縦棒')
+     A                                      CHOICE(2 '地図（単一）')
+     A                                      CHOICE(3 '地図（複合）')
+     A                                      CHOICE(4 '地図（タイル）')
+      *
+      *グラフの条件指定
+     A                                  9 15'集計対象：'
+     A                                      COLOR(BLU)
+     A            GEND           2Y 0B  9 32SNGCHCFLD
+     A  50                                  DSPATR(RI)
+     A  50                                  ERRMSGID(CPF9897 *LIBL/QCPFMSG 50 &-
+     A                                      MSGDTA)
+     A                                      CHOICE(1 '全て')
+     A                                      CHOICE(2 '男性')
+     A                                      CHOICE(3 '女性')
+     A                                      CHOICE(4 '自由')
+      *
+     A                                 14 15'グラフ色：'
+     A                                      COLOR(PNK)
+     A            GPHC           2Y 0B 14 32SNGCHCFLD((*NUMCOL 3))
+     A  51                                  DSPATR(RI)
+     A  51                                  ERRMSGID(CPF9897 *LIBL/QCPFMSG 51 &-
+     A                                      MSGDTA)
+     A                                      CHOICE(1 ' PASTEL1')
+     A                                      CHOICE(2 ' DARK2')
+     A                                      CHOICE(3 ' SET2')
+     A                                      CHOICE(4 '青系')
+     A                                      CHOICE(5 '緑系')
+     A                                      CHOICE(6 '赤系')
+     A                                      CHOICE(7 'マグマ')
+     A                                      CHOICE(8 '虹')
+     A                                      CHOICE(9 '虹2')
+      *機能キー
+     A            PENTER         2Y 0B 18 29PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'ENTER=グラフ作成')
+      *
+     A            PEXIT          2Y 0B 18 58PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'F3=終了' CA03)
+     A  52                             20  6'↓↓クリックしてブラウザを起動。+
+     A                                      またはURLをブラウザに貼り付け↓+
+     A                                      ↓'
+     A                                      COLOR(WHT)
+      *出力先URL
+     A  52        GPHURL        68A  O 21 11COLOR(PNK)
+     A                                      DSPATR(PC)
+      *完了メッセージ
+     A  52        MSGLIN        78O  O 24  2DSPATR(HI)
+      *メッセージ行
+     A            MSGDTA        79A  P
+      *
+      *罫線レコード
+     A          R GRIDW                     GRDRCD
+     A                                      GRDBOX((*POS (6 14 2 58)) +
+     A                                              (*COLOR RED))
+     A                                      GRDBOX((*POS (9 14 4 58)))
+     A                                      GRDBOX((*POS (14 14 3 58)))
+     A          R GRIDC                     GRDRCD
+     A                                      GRDCLR
+      *処理中WINDOW
+     A          R WINDOW
+     A                                      WINDOW(10 27 3 24 *NOMSGLIN)
+     A                                      WDWBORDER((*DSPATR BL) +
+                                                      (*COLOR RED))
+     A                                      WDWTITLE((*TEXT 'グラフ生成中') +
+     A                                      (*DSPATR BL) (*COLOR RED))
+     A                                  2  3'お待ちください...'
+     A                                      DSPATR(BL) COLOR(RED)
+      * WINDOW用のダミーレコード
+     A          R DUMMY                     ASSUME
+     A                                  1  2' '
+     A                                      DSPATR(ND)

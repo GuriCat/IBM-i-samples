@@ -1,0 +1,241 @@
+             /*高品質な帳票生成とＰＤＦ化                      */             
+             PGM                                                                
+                                                                                
+             DCLF       FILE(JMAP)                                              
+             DCL        VAR(&PREF) TYPE(*CHAR) LEN(10)                          
+             DCL        VAR(&JOBNAME) TYPE(*CHAR) LEN(10)                       
+             DCL        VAR(&JOBCCSID) TYPE(*DEC) LEN(5 0)                      
+             DCL        VAR(&DATETIME) TYPE(*CHAR) LEN(20)                      
+             DCL        VAR(&AFP_PDF) TYPE(*CHAR) LEN(256)                      
+             /* QDCRDEVD API                                      +             
+   https://www.ibm.com/support/pages/sample-cl-program-uses-qdcrdevd-api  +  
+   https://www.ibm.com/docs/en/i/7.4?topic=ssw_ibm_i_74/apis/QDCRDEVD.htm */    
+             DCL        VAR(&DEVINFO) TYPE(*CHAR) LEN(999)                      
+               DCL        VAR(&DEVDNAM) TYPE(*CHAR) STG(*DEFINED) +             
+                            LEN(10) DEFVAR(&DEVINFO 22)                         
+               DCL        VAR(&DEVDCAT) TYPE(*CHAR) STG(*DEFINED) +             
+                            LEN(10) DEFVAR(&DEVINFO 32)                         
+               DCL        VAR(&DEVDGCS) TYPE(*INT) STG(*DEFINED) +              
+                            LEN(4) DEFVAR(&DEVINFO 105)                         
+               DCL        VAR(&DEVDCP) TYPE(*INT) STG(*DEFINED) LEN(4) +        
+                            DEFVAR(&DEVINFO 109)                                
+             DCL        VAR(&DEVFMT) TYPE(*CHAR) LEN(8) VALUE('DEVD0600')       
+             DCL        VAR(&LENVAR) TYPE(*INT) LEN(4) VALUE(999)               
+             DCL        VAR(&ERRCDE) TYPE(*CHAR) LEN(32)                        
+             /*パス区切り文字変換用のワーク変数*/                             
+             DCL        VAR(&SEP) TYPE(*CHAR) LEN(1) VALUE('\')                 
+             DCL        VAR(&PATHSEP) TYPE(*CHAR) LEN(1)                        
+             DCL        VAR(&POS) TYPE(*UINT)                                   
+             /* 5250表示装置情報*/                                            
+             DCL        VAR(&DEVCPC) TYPE(*CHAR) LEN(10)                        
+             /***********************************************************/      
+             /* NetServerのホスト名またはIPアドレスに置き換え*/             
+             DCL        VAR(&HOST) TYPE(*CHAR) LEN(64) +                        
+                          VALUE('IBMI')                                         
+                                                                                
+             /****************************************************/             
+             /*現行表示装置名とCCSIDの取得                   */             
+             RTVJOBA    JOB(&JOBNAME) CCSID(&JOBCCSID)                          
+             CHGJOB     CCSID(65535)                                            
+                                                                                
+ LOOPJM:     SNDRCVF    RCDFMT(JMAP)                                            
+             IF         COND(&IN03 = '1' *OR &IN12 = '1') THEN(GOTO +           
+                          CMDLBL(EXITJM))                                       
+                                                                                
+             /*日本地図に模した５２５０画面のマウス位置⇒都道府県*/           
+             CHGVAR VAR(&PREF) VALUE(' ')                                       
+             SELECT                                                             
+             WHEN       COND(&ROW = 4 & (62 <= &COL & &COL <= 67)) +            
+                          THEN(CHGVAR VAR(&PREF) VALUE('青森県　'))           
+             WHEN       COND(&ROW = 6 & (60 <= &COL & &COL <= 63)) +            
+                          THEN(CHGVAR VAR(&PREF) VALUE('秋田県　'))           
+             WHEN       COND(&ROW = 6 & (66 <= &COL & &COL <= 69)) +            
+                          THEN(CHGVAR VAR(&PREF) VALUE('岩手県　'))           
+             WHEN       COND(&ROW = 8 & (10 <= &COL & &COL <= 13)) +            
+                          THEN(CHGVAR VAR(&PREF) VALUE('沖縄県　'))           
+             WHEN       COND(&ROW = 8 & (22 <= &COL & &COL <= 31)) +            
+                          THEN(CHGVAR VAR(&PREF) VALUE('北海道　'))           
+             WHEN       COND((&ROW = 8 & (46 <= &COL & &COL <= 47)) +           
+                          | (&ROW = 9 & (46 <= &COL & &COL <= 47))) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('石川県　'))           
+             WHEN       COND(&ROW = 8 & (60 <= &COL & &COL <= 63)) +            
+                          THEN(CHGVAR VAR(&PREF) VALUE('山形県　'))           
+             WHEN       COND(&ROW = 8 & (66 <= &COL & &COL <= 69)) +            
+                          THEN(CHGVAR VAR(&PREF) VALUE('宮城県　'))           
+             WHEN       COND((&ROW = 10 & (50 <= &COL & &COL <= 51)) +          
+                          | (&ROW = 11 & (50 <= &COL & &COL <= 51))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('富山県　'))           
+             WHEN       COND(&ROW = 10 & (54 <= &COL & &COL <= 59)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('新潟県　'))           
+             WHEN       COND(&ROW = 10 & (62 <= &COL & &COL <= 69)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('福島県　'))           
+             WHEN       COND((&ROW = 11 & (46 <= &COL & &COL <= 47)) +          
+                          | (&ROW = 12 & (46 <= &COL & &COL <= 47))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('福井県　'))           
+             WHEN       COND(&ROW = 12 & (56 <= &COL & &COL <= 59)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('群馬県　'))           
+             WHEN       COND(&ROW = 12 & (62 <= &COL & &COL <= 65)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('栃木県　'))           
+             WHEN       COND((&ROW = 12 & (68 <= &COL & &COL <= 69)) +          
+                          | (&ROW = 13 & (68 <= &COL & &COL <= 69)) +           
+                          | (&ROW = 14 & (68 <= &COL & &COL <= 69))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('茨城県　'))           
+             WHEN       COND((&ROW = 13 & (8 <= &COL& &COL <= 9)) | +           
+                          (&ROW = 14 & (8 <= &COL& &COL <= 9))) +               
+                          THEN(CHGVAR VAR(&PREF) VALUE('長崎県　'))           
+             WHEN       COND((&ROW = 13 & (12 <= &COL & &COL <= 13)) +          
+                          | (&ROW = 14 & (12 <= &COL & &COL <= 13))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('佐賀県　'))           
+             WHEN       COND((&ROW = 13 & (16 <= &COL & &COL <= 17)) +          
+                          | (&ROW = 14 & (16 <= &COL & &COL <= 17))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('福岡県　'))           
+             WHEN       COND((&ROW = 13 & (22 <= &COL & &COL <= 23)) +          
+                          | (&ROW = 14 & (22 <= &COL & &COL <= 23)) +           
+                          | (&ROW = 15 & (22 <= &COL & &COL <= 23))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('山口県　'))           
+             WHEN       COND(&ROW = 13 & (26 <= &COL & &COL <= 29)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('島根県　'))           
+             WHEN       COND(&ROW = 13 & (32 <= &COL & &COL <= 35)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('鳥取県　'))           
+             WHEN       COND(&ROW = 15 & (26 <= &COL & &COL <= 29)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('広島県　'))           
+             WHEN       COND(&ROW = 15 & (32 <= &COL & &COL <= 35)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('岡山県　'))           
+             WHEN       COND((&ROW = 13 & (38 <= &COL & &COL <= 39)) +          
+                          | (&ROW = 14 & (38 <= &COL & &COL <= 39)) +           
+                          | (&ROW = 15 & (38 <= &COL & &COL <= 39))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('兵庫県　'))           
+             WHEN       COND((&ROW = 13 & (42 <= &COL & &COL <= 43)) +          
+                          | (&ROW = 14 & (42 <= &COL & &COL <= 43)) +           
+                          | (&ROW = 15 & (42 <= &COL & &COL <= 43))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('京都府　'))           
+             WHEN       COND((&ROW = 14 & (46 <= &COL & &COL <= 47)) +          
+                          | (&ROW = 15 & (46 <= &COL & &COL <= 47))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('滋賀県　'))           
+             WHEN       COND((&ROW = 13 & (50 <= &COL & &COL <= 51)) +          
+                          | (&ROW = 14 & (50 <= &COL & &COL <= 51))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('岐阜県　'))           
+             WHEN       COND((&ROW = 14 & (54 <= &COL & &COL <= 55)) +          
+                          | (&ROW = 15 & (54 <= &COL & &COL <= 55)) +           
+                          | (&ROW = 16 & (54 <= &COL & &COL <= 55))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('長野県　'))           
+             WHEN       COND((&ROW = 15 & (58 <= &COL & &COL <= 59)) +          
+                          | (&ROW = 16 & (58 <= &COL & &COL <= 59))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('山梨県　'))           
+             WHEN       COND(&ROW = 14 & (62 <= &COL & &COL <= 65)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('埼玉県　'))           
+             WHEN       COND(&ROW = 16 & (62 <= &COL & &COL <= 65)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('東京都　'))           
+             WHEN       COND((&ROW = 16 & (10 <= &COL & &COL <= 11)) +          
+                          | (&ROW = 17 & (10 <= &COL & &COL <= 11)) +           
+                          | (&ROW = 18 & (10 <= &COL & &COL <= 11))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('熊本県　'))           
+             WHEN       COND(&ROW = 16 & (14 <= &COL & &COL <= 17)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('大分県　'))           
+             WHEN       COND(&ROW = 18 & (14 <= &COL & &COL <= 17)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('宮崎県　'))           
+             WHEN       COND(&ROW = 20 & (10 <= &COL & &COL <= 17)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('鹿児島県'))           
+             WHEN       COND(&ROW = 18 & (24 <= &COL & &COL <= 29)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('愛媛県　'))           
+             WHEN       COND(&ROW = 18 & (32 <= &COL & &COL <= 35)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('香川県　'))           
+             WHEN       COND(&ROW = 20 & (24 <= &COL & &COL <= 29)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('高知県　'))           
+             WHEN       COND(&ROW = 20 & (32 <= &COL & &COL <= 35)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('徳島県　'))           
+             WHEN       COND((&ROW = 17 & (40 <= &COL & &COL <= 41)) +          
+                          | (&ROW = 18 & (40 <= &COL & &COL <= 41))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('大阪府　'))           
+             WHEN       COND((&ROW = 17 & (44 <= &COL & &COL <= 45)) +          
+                          | (&ROW = 18 & (44 <= &COL & &COL <= 45)) +           
+                          | (&ROW = 19 & (44 <= &COL & &COL <= 45))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('奈良県　'))           
+             WHEN       COND((&ROW = 20 & (40 <= &COL & &COL <= 41)) +          
+                          | (&ROW = 21 & (40 <= &COL & &COL <= 45))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('和歌山県'))           
+             WHEN       COND((&ROW = 20 & (48 <= &COL & &COL <= 49)) +          
+                          | (&ROW = 21 & (48 <= &COL & &COL <= 49))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('三重県　'))           
+             WHEN       COND((&ROW = 16 & (50 <= &COL & &COL <= 51)) +          
+                          | (&ROW = 17 & (50 <= &COL & &COL <= 51)) +           
+                          | (&ROW = 18 & (50 <= &COL & &COL <= 51))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('愛知県　'))           
+             WHEN       COND(&ROW = 18 & (54 <= &COL & &COL <= 57)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('静岡県　'))           
+             WHEN       COND(&ROW = 18 & (60 <= &COL & &COL <= 65)) +           
+                          THEN(CHGVAR VAR(&PREF) VALUE('神奈川県'))           
+             WHEN       COND((&ROW = 16 & (68 <= &COL & &COL <= 69)) +          
+                          | (&ROW = 17 & (68 <= &COL & &COL <= 69)) +           
+                          | (&ROW = 18 & (68 <= &COL & &COL <= 69))) +          
+                          THEN(CHGVAR VAR(&PREF) VALUE('千葉県　'))           
+             OTHERWISE  CMD(CHGVAR VAR(&PREF) VALUE('範囲外'))                
+             ENDSELECT                                                          
+                                                                                
+             CHGVAR     VAR(&ROW@) VALUE(&ROW)                                  
+             CHGVAR     VAR(&COL@) VALUE(&COL)                                  
+             IF         COND(&PREF = '範囲外') THEN(GOTO +                    
+                          CMDLBL(LOOPJM))                                       
+                                                                                
+             /*指定都道府県を抽出したAFP印刷出力→PDF変換*/               
+             SNDPGMMSG  MSGID(CPF9897) MSGF(QCPFMSG) +                          
+                          MSGDTA('PDFを生成中...') +                          
+                          TOPGMQ(*EXT) MSGTYPE(*STATUS)                         
+             OVRDBF     FILE(PERSON) OVRSCOPE(*JOB) SHARE(*YES) +               
+                          OPNSCOPE(*JOB)                                        
+             OPNQRYF    FILE((PERSON)) QRYSLT('PREF = "' || &PREF || +          
+                          '"')                                                  
+             CALL       PGM(AFPPRT)                                             
+             CLOF       OPNID(PERSON)                                           
+             DLTOVR     FILE(PERSON) LVL(*JOB)                                  
+                                                                                
+             RTVJOBA    DATETIME(&DATETIME)                                     
+             CHGVAR     VAR(&AFP_PDF) +                                         
+                          VALUE('/TMP/EMUTOOL/AFPPRTF/AFPPRTF_' |< +            
+                          &DATETIME |< '.PDF')                                  
+             CHGJOB     CCSID(5035)                                             
+             CPYSPLF    FILE(AFPPRTF) TOFILE(*TOSTMF) SPLNBR(*LAST) +           
+                          TOSTMF(&AFP_PDF) WSCST(*PDF)                          
+             CHGJOB     CCSID(65535)                                            
+             SNDPGMMSG  MSGID(CPF9897) MSGF(QCPFMSG) +                          
+                          MSGDTA('PDFの生成が終了しました。') +               
+                          MSGTYPE(*COMP)                                        
+                                                                                
+             /*表示装置記述の取得*/                                           
+             CALL       PGM(QDCRDEVD) PARM((&DEVINFO) (&LENVAR) +               
+                          (&DEVFMT) (&JOBNAME) (&ERRCDE))                       
+                                                                                
+             /* デバッグ・メッセージ                                     +        
+             CHGVAR     VAR(&DEVCPC) VALUE(&DEVDCP)                    +        
+             SNDPGMMSG  MSGID(CPF9897) MSGF(QCPFMSG) MSGDTA('CP' |> +           
+                          &DEVCPC) TOPGMQ(*EXT) MSGTYPE(*STATUS)       +        
+             DLYJOB     DLY(3)                                         */       
+                                                                                
+             /*このソースファイルのCCSIDは5026 */                           
+             IF         COND(&DEVDCP = 1027) THEN(CHGVAR VAR(&SEP) +            
+                          VALUE(X'E0'))
+             /* "/"をパス区切り文字に置き換え*/                               
+             CALLSUBR   SUBR(#RPLSEP)                                           
+             /*クライアントのデスクトップに表示*/                             
+             STRPCO     PCTA(*NO)                                               
+             MONMSG     MSGID(IWS0000)                                          
+             STRPCCMD   PCCMD('START' |> &SEP || &SEP |< &HOST |< +             
+                          &AFP_PDF) PAUSE(*NO)                                  
+                                                                                
+             CHGJOB     CCSID(&JOBCCSID)                                        
+             GOTO       CMDLBL(LOOPJM)                                          
+                                                                                
+             /****************************************************/             
+             /*サブルーチン：パス区切り文字"/"の置き換え     */             
+             SUBR       SUBR(#RPLSEP)                                           
+                                                                                
+               DOFOR      VAR(&POS) FROM(1) TO(256)                             
+                 CHGVAR     VAR(&PATHSEP) VALUE(%SST(&AFP_PDF &POS 1))          
+                 IF         COND(&PATHSEP = ' ') THEN(LEAVE)                    
+                 IF         COND(&PATHSEP = '/') THEN(CHGVAR +                  
+                              VAR(%SST(&AFP_PDF &POS 1)) VALUE(&SEP))           
+               ENDDO                                                            
+                                                                                
+             ENDSUBR                                                            
+                                                                                
+ EXITJM:     ENDPGM                                                             

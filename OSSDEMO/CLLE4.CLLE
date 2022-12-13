@@ -1,0 +1,177 @@
+             PGM
+             DCLF       FILE(DSPF4)
+             DCL        VAR(&SERVER) TYPE(*CHAR) LEN(256) VALUE(IBMI)
+             DCL        VAR(&WORKDIR) TYPE(*CHAR) LEN(256) +
+                          VALUE('/tmp/OSSGRAPH/')
+             DCL        VAR(&HTMLPATH) TYPE(*CHAR) LEN(256)
+             DCL        VAR(&DATETIME) TYPE(*CHAR) LEN(20)
+             DCL        VAR(&QSHCMD) TYPE(*CHAR) LEN(256)
+             DCL        VAR(&CNTDATA) TYPE(*CHAR) LEN(1)
+             DCL        VAR(&CSCHEMA) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&JOBCCSID) TYPE(*DEC) LEN(5 0)
+
+             /* Main **************************************************/
+
+             RTVJOBA    CCSID(&JOBCCSID)
+             CHGJOB     CCSID(1399)
+             CHGVAR     VAR(&PGMNAM) VALUE('CLLE4')
+
+ LOOP:       SNDF       RCDFMT(GRIDW)
+             SNDRCVF    RCDFMT(DSPF4R)
+             IF         COND(&IN03 = '1') THEN(GOTO CMDLBL(LEAVE))
+
+             CHGVAR     VAR(&IN49) VALUE('0')
+             CHGVAR     VAR(&IN50) VALUE('0')
+             CHGVAR     VAR(&IN51) VALUE('0')
+             CHGVAR     VAR(&IN52) VALUE('0')
+
+             IF         COND(&GPHT = 0) THEN(DO)
+               CHGVAR     VAR(&IN49) VALUE('1')
+               CHGVAR     VAR(&MSGDTA) +
+                            VALUE('グラフ種が選択されていません。')
+               GOTO       CMDLBL(LOOP)
+             ENDDO
+             IF         COND(&GEND = 0) THEN(DO)
+               CHGVAR     VAR(&IN50) VALUE('1')
+               CHGVAR     VAR(&MSGDTA) +
+                            VALUE('集計対象が選択されていません。')
+               GOTO       CMDLBL(LOOP)
+             ENDDO
+             IF         COND(&GPHC = 0) THEN(DO)
+               CHGVAR     VAR(&IN51) VALUE('1')
+               CHGVAR     VAR(&MSGDTA) +
+                            VALUE('グラフ色が選択されていません。')
+               GOTO       CMDLBL(LOOP)
+             ENDDO
+
+             /*集計対象*/
+             IF         COND(&GEND = 1) THEN(CHGVAR VAR(&CNTDATA) +
+                          VALUE('A'))
+             IF         COND(&GEND = 2) THEN(CHGVAR VAR(&CNTDATA) +
+                          VALUE('M'))
+             IF         COND(&GEND = 3) THEN(CHGVAR VAR(&CNTDATA) +
+                          VALUE('F'))
+             IF         COND(&GEND = 4) THEN(CHGVAR VAR(&CNTDATA) +
+                          VALUE('X'))
+             /*グラフ色*/
+             IF         COND(&GPHT < 4) THEN(CALLSUBR SUBR(#SETCOLA))
+             IF         COND(&GPHT = 4) THEN(CALLSUBR SUBR(#SETCOLF))
+
+             /*グラフ生成コマンドの組み立て*/
+             RTVJOBA    DATETIME(&DATETIME)
+             /*縦棒*/
+             IF         COND(&GPHT = 1) THEN(DO)
+             CHGVAR     VAR(&HTMLPATH) VALUE(&WORKDIR |< 'bar_' |< +
+                          &CNTDATA |< '_' |< &CSCHEMA |< '-' |< +
+                          &DATETIME |< '.html')
+             CHGVAR     VAR(&QSHCMD) VALUE('/QOpenSys/usr/bin/sh -c +
+                          "export PATH=/QOpenSys/pkgs/bin:$PATH ; +
+                          python /home/ユーザー/ossdemo/sql_person.py ' || +
+                          &CNTDATA |> &CSCHEMA |> &HTMLPATH |< '"')
+             ENDDO
+             /*日本地図(altair) */
+             IF         COND(&GPHT = 2) THEN(DO)
+             CHGVAR     VAR(&HTMLPATH) VALUE(&WORKDIR |< 'mapa_' |< +
+                          &CNTDATA |< '_' |< &CSCHEMA |< '-' |< +
+                          &DATETIME |< '.html')
+             CHGVAR     VAR(&QSHCMD) VALUE('/QOpenSys/usr/bin/sh -c +
+                          "export PATH=/QOpenSys/pkgs/bin:$PATH ; +
+                          python /home/ユーザー/ossdemo/map_altair.py ' || +
+                          &CNTDATA |> &CSCHEMA |> &HTMLPATH |< '"')
+             ENDDO
+             /*日本地図―複数(altair) */
+             IF         COND(&GPHT = 3) THEN(DO)
+             CHGVAR     VAR(&HTMLPATH) VALUE(&WORKDIR |< '4map_' |< +
+                          &CNTDATA |< '_' |< &CSCHEMA |< '-' |< +
+                          &DATETIME |< '.html')
+             CHGVAR     VAR(&QSHCMD) VALUE('/QOpenSys/usr/bin/sh -c +
+                          "export PATH=/QOpenSys/pkgs/bin:$PATH ; +
+                          python /home/ユーザー/ossdemo/map_altair_all.py ' +
+                          || &CSCHEMA |> &HTMLPATH |< '"')
+             ENDDO
+             /*日本地図(folium) */
+             IF         COND(&GPHT = 4) THEN(DO)
+             CHGVAR     VAR(&HTMLPATH) VALUE(&WORKDIR |< 'mapf_' |< +
+                          &CNTDATA |< '_' |< &CSCHEMA |< '-' |< +
+                          &DATETIME |< '.html')
+             CHGVAR     VAR(&QSHCMD) VALUE('/QOpenSys/usr/bin/sh -c +
+                          "export PATH=/QOpenSys/pkgs/bin:$PATH ; +
+                          python /home/ユーザー/ossdemo/mapf_folium.py ' || +
+                          &CNTDATA |> &CSCHEMA |> &HTMLPATH |< '"')
+             ENDDO
+             /*グラフの生成*/
+             CHGVAR     VAR(&GPHURL) VALUE('file://' |< &SERVER |< +
+                          &HTMLPATH)
+             CHGVAR     VAR(&MSGLIN) VALUE(' ')
+             SNDF       RCDFMT(DSPF4R)
+             SNDF       RCDFMT(WINDOW)
+             QSH        CMD(&QSHCMD)
+
+             CHGVAR     VAR(&IN52) VALUE('1')
+             CHGVAR     VAR(&MSGLIN) +
+                          VALUE('グラフの生成が完了。（グラフ種' +
+                          |< %CHAR(&GPHT) |< '集計対象' |< +
+                          &CNTDATA |< 'グラフ色' |< &CSCHEMA |< +
+                          '）')
+
+             GOTO       CMDLBL(LOOP)
+
+ LEAVE:      CHGJOB     CCSID(&JOBCCSID)
+
+             SNDF       RCDFMT(GRIDC)
+
+             /* Subroutines *******************************************/
+
+             /* Set color schema for Altair */
+             SUBR       SUBR(#SETCOLA)
+
+             IF         COND(&GPHC = 1) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('pastel1'))
+             IF         COND(&GPHC = 2) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('dark2'))
+             IF         COND(&GPHC = 3) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('set2'))
+             IF         COND(&GPHC = 4) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('blues'))
+             IF         COND(&GPHC = 5) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('greens'))
+             IF         COND(&GPHC = 6) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('reds'))
+             IF         COND(&GPHC = 7) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('magma'))
+             IF         COND(&GPHC = 8) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('rainbow'))
+             IF         COND(&GPHC = 9) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('sinebow'))
+
+             RTNSUBR
+             ENDSUBR
+
+             /* Set color schema for Folium */
+             SUBR       SUBR(#SETCOLF)
+
+             IF         COND(&GPHC = 1) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('Pastel1'))
+             IF         COND(&GPHC = 2) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('Dark2'))
+             IF         COND(&GPHC = 3) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('Set2'))
+             IF         COND(&GPHC = 4) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('PuBu'))
+             IF         COND(&GPHC = 5) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('BuGn'))
+             IF         COND(&GPHC = 6) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('OrRd'))
+             IF         COND(&GPHC = 7) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('RdGy'))
+             IF         COND(&GPHC = 8) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('Set1'))
+             IF         COND(&GPHC = 9) THEN(CHGVAR VAR(&CSCHEMA) +
+                          VALUE('Accent'))
+
+             RTNSUBR
+             ENDSUBR
+
+             /* Exit program ******************************************/
+
+             ENDPGM

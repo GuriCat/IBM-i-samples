@@ -1,0 +1,67 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      PRINT
+     A                                      INDARA
+     A          R HEADER
+     A                                      OVERLAY
+     A                                  1  2'DSPSVRSTS'
+     A                                  1 31'LPAR状況の表示'
+     A                                      DSPATR(HI)
+     A                                  1 72SYSNAME
+     A                                  2 61DATE(*SYS *YY)
+     A                                      EDTCDE(Y)
+     A                                  2 72TIME
+     A                                  3  3'割当コア数'
+     A            SETCORE        5Y 2O  3 17EDTWRD(' 0 .  ')
+     A                                  3 31'コア使用合計'
+     A            TOTCPU         5Y 2O  3 46EDTWRD(' 0 .  ')
+     A                                  3 54'システムの区画数'
+     A            NUMPART        2S 0O  3 73
+     A                                  4 35'('
+     A            COREUSE        5Y 2O  4 37EDTWRD(' 0 .  ')
+     A                                  4 44'%)'
+     A          R SFL                       SFL
+     A            PARTID         2Y 0O  8  2EDTCDE(3)
+     A            PARTNAME      10A  O  8  5
+     A            CAPCPU         5Y 2O  8 17EDTWRD(' 0 .  ')
+     A            SHAREMODE      8A  O  8 25
+     A            MAXCPU         5Y 2O  8 37EDTWRD(' 0 .  ')
+     A            ESTCORE        5Y 2O  8 46EDTWRD(' 0 .  ')
+     A            TOTALJOBS      6Y 0O  9 19EDTCDE(1)
+     A                                      COLOR(BLU)
+     A            ACTIVEJOBS     6Y 0O  9 28EDTCDE(1)
+     A                                      COLOR(BLU)
+     A            MAXJOBS        6Y 0O  9 37EDTCDE(1)
+     A                                      COLOR(BLU)
+     A                                  9 46'/'
+     A                                      COLOR(WHT)
+     A            SIZEASP1       6Y 0O  9 49EDTCDE(1)
+     A                                      COLOR(WHT)
+     A            RATEASP1       5Y 2O  9 58EDTWRD(' 0 .  ')
+     A                                      COLOR(WHT)
+     A                                  9 65'%'
+     A                                      COLOR(WHT)
+     A          R SFLCTL                    SFLCTL(SFL)
+     A                                      SFLSIZ(0007)
+     A                                      SFLPAG(0006)
+     A                                      OVERLAY
+     A                                      CA03(03 '終了')
+     A                                      CA05(05 '更新')
+     A                                      CA21(21 'コマンド入力')
+     A  32                                  SFLDSP
+     A  32                                  SFLEND
+     A  32                                  SFLDSPCTL
+     A  30                                  SFLCLR
+     A                                  6  2'ID区画名    コア数 共有   +
+     A                                      最大CPU%コア換算'
+     A                                  7 18'総JOB  活動JOB最大JOB'
+     A                                      COLOR(BLU)
+     A                                  7 46'/  ASP1(GB)使用率%'
+     A                                      COLOR(WHT)
+     A          R FOOTER                    OVERLAY
+     A            F5             2Y 0B 22  4PSHBTNFLD
+     A                                      PSHBTNCHC(1 'F5=再表示' CA05)
+     A            F3             2Y 0B    +4PSHBTNFLD
+     A                                      PSHBTNCHC(1 'F3=終了' CA03)
+     A            CMD            2Y 0B    +4PSHBTNFLD
+     A                                      PSHBTNCHC(1 'F21=コマンド入力' +
+     A                                      CA21)

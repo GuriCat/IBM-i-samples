@@ -1,0 +1,51 @@
+     A                                      MNUCNL(CA12)                        
+     A                                      CA03(03 'END')                      
+      *                                                                         
+     A          R R1                                                            
+     A                                      MNUBARDSP(MENURCD &MNUSEL &PDSEL)   
+     A            MNUSEL         2Y 0H                                          
+     A            PDSEL          2S 0H                                          
+      *                                                                         
+     A            PB03           2Y 0B 23  3PSHBTNFLD                           
+     A                                      PSHBTNCHC(1 'F3=終了' CA03)       
+      *                                                                         
+     A          R MENURCD                   MNUBAR                              
+     A            MNUFLD         2Y 0B  1  2                                    
+     A                                      MNUBARCHC(1 MAINT   '>M)保守')    
+     A                                      MNUBARCHC(2 PROCESS '>P)処理')    
+     A                                      MNUBARCHC(3 INQUIRE '>Q)照会')    
+     A                                      MNUBARSEP((*COLOR WHT))             
+      *                                                                         
+     A          R MAINT                     PULLDOWN(*NOSLTIND)                 
+     A            MNTSEL         2Y 0B  1  1SNGCHCFLD                           
+     A                                      CHECK(ER)                           
+     A                                      CHOICE(1 '>C)顧客')               
+     A                                      CHOICE(2 '>S)担当営業')           
+      *                                                                         
+     A          R PROCESS                   PULLDOWN(*NOSLTIND)                 
+     A            PRCSEL         2Y 0B  1  1SNGCHCFLD                           
+     A                                      CHECK(ER)                           
+     A                                      CHOICE(1 '>I)請求')               
+     A                                      CHOICE(2 '>C)売上')               
+     A                                      CHOICE(3 '>S)決算')               
+     A                                      CHOICE(4 '>M)月次')               
+      *                                                                         
+     A          R INQUIRE                   PULLDOWN(*NOSLTIND)                 
+     A            INQSEL         2Y 0B  1  1SNGCHCFLD                           
+     A                                      CHECK(ER)                           
+     A                                      CHOICE(1 '>C)売掛残照会')         
+     A                                      CHOICE(2 '>I)請求書照会')         
+     A                                      CHOICE(3 '>H)入出金照会')         
+      *                                                                         
+     A          R CHOICE                    WINDOW(*DFT 7 24)                   
+     A                                  1  2'選択値'                          
+     A                                      DSPATR(HI)                          
+     A                                  3  4'メニュー:'                       
+     A            MNUSEL         2Y 0O  3 16EDTCDE(3)                           
+     A                                  4  4'項目:'                           
+     A            PDSEL          2Y 0O  4 16EDTCDE(3)                           
+     A                                  6  4'実行キーで戻る。'                
+     A                                      COLOR(RED)                          
+      *                                                                         
+     A          R DUMMY                     ASSUME                              
+     A                                  1  2' '                                 

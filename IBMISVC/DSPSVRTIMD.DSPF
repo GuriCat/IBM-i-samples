@@ -1,0 +1,55 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      PRINT
+     A                                      INDARA
+      *
+     A          R HEADER
+     A                                      OVERLAY
+     A                                  1  2'DSPSVRTIM'
+     A                                  1 31'LPAR時刻の表示'
+     A                                      DSPATR(HI)
+     A                                  1 72SYSNAME
+     A                                  2 61DATE(*SYS *YY)
+     A                                      EDTCDE(Y)
+     A                                  2 72TIME
+     A*
+     A          R SFL                       SFL
+     A            PARTID         2Y 0O  6  2EDTCDE(3)
+     A            PARTNAME      10A  O  6  5
+     A            PARTDATE        L  O  6 17
+     A            PARTTIME        T  O  6 29
+     A            PARTTDIF       5Y 0O  6 39EDTCDE(J)
+     A                                  6 47'/'
+     A            PARTNIPL      18A  O  6 49COLOR(WHT)
+     A            PARTUPDT        L  O  7 17COLOR(BLU)
+     A            PARTUPTI        T  O  7 29COLOR(BLU)
+     A            PARTUPDU      27A  O  7 39COLOR(BLU)
+     A*
+     A          R SFLCTL                    SFLCTL(SFL)
+     A                                      SFLSIZ(0008)
+     A                                      SFLPAG(0007)
+     A                                      OVERLAY
+     A                                      CA03(03 '終了')
+     A                                      CA05(05 '更新')
+     A                                      CA21(21 'コマンド入力')
+     A  32                                  SFLDSP
+     A  32                                  SFLEND
+     A  32                                  SFLDSPCTL
+     A  30                                  SFLCLR
+     A                                  4  2'NO区画名'
+     A                                  4 16'区画現在日付・時刻'
+     A                                  4 39'Δ秒'
+     A                                  5 17'SCPF開始日時'
+     A                                      COLOR(BLU)
+     A                                  5 38'通算稼働時間'
+     A                                      COLOR(BLU)
+     A                                  4 47'/次回IPL日時'
+     A                                      COLOR(WHT)
+      *
+     A          R FOOTER                    OVERLAY
+     A            F5             2Y 0B 22  4PSHBTNFLD
+     A                                      PSHBTNCHC(1 'F5=再表示' CA05)
+     A            F3             2Y 0B    +4PSHBTNFLD
+     A                                      PSHBTNCHC(1 'F3=終了' CA03)
+     A            CMD            2Y 0B    +4PSHBTNFLD
+     A                                      PSHBTNCHC(1 'F21=コマンド入力' +
+     A                                      CA21)

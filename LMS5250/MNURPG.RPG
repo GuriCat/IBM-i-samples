@@ -1,0 +1,14 @@
+     FMNUDDS  CF  E                    WORKSTN                                  
+      *                                                                         
+     C           1         DOWEQ1                                               
+     C                     EXFMTR1                                              
+     C   03                LEAVE                                                
+     C                     EXSR SUBR                                            
+     C                     END                                                  
+      *                                                                         
+     C                     MOVE '1'       *INLR                                 
+     C                     RETRN                                                
+      *                                                                         
+     C           SUBR      BEGSR                                                
+     C                     EXFMTCHOICE                                          
+     C                     ENDSR                                                

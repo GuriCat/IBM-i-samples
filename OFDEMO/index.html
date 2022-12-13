@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>サーバー文書の検索</title>
+<link rel="icon" href="/image/favicon.ico">
+<!-- https://jquerymobile.com/download/ -->
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<!-- https://developers.google.com/speed/libraries?hl=ja#jquery -->
+
+<style type="text/css">  
+  .inlineIcon {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    width: auto !important;
+  }
+</style>
+
+<style>
+  .overlay{
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    background: rgba(255,255,255,0.8) url("/image/loading.gif") center no-repeat;
+  }
+  /* Turn off scrollbar when body element has the loading class */
+  body.loading{
+    overflow: hidden;   
+  }
+  /* Make spinner image visible when body element has the loading class */
+  body.loading .overlay{
+    display: block;
+  }
+  /* disable text-overflow:ellipsis */
+  .ui-header .ui-title, .ui-footer .ui-title {
+    overflow: visible;
+  }
+  /* リストの丸角の効果がアイコンにまで影響しないように指定 */
+  .ui-corner-none {
+    border-radius: 0 0 0 0;
+  }
+  /* Listviewアイコンサイズを大きくする */
+  .ui-listview .ui-li-icon {
+    position: absolute !important;
+    max-height: 24px !important;
+    max-width: 24px !important;
+    left: 10px !important;
+    top: 10px !important;
+  }
+</style>
+
+</head>
+
+<body>
+
+  <!-- 検索条件指定 -->
+  <div data-role="page" id="search_page" data-title="IBM i 日本語全文検索">
+
+    <div data-role="header" data-position="fixed">
+      <h1>IBM i 日本語全文検索</h1>
+    </div>
+
+    <div role="main" class="ui-content">
+
+      <form method="POST" id="form1">
+
+        <div class="ui-field-contain">
+          <fieldset data-role="controlgroup" data-type="horizontal">
+            <H3>検索対象：</H3>
+            <input type="hidden" name="search_target" value="" /> <!-- Serialize対象にするための隠し変数 -->
+            <label for="radio1"><span class="ui-icon-action ui-btn-icon-notext inlineIcon"></span>&nbspPC文書</label>
+            <input type="radio" id="radio1" name="search_target" value="pcdoc" checked />
+            <label for="radio2"><span class="ui-icon-shop ui-btn-icon-notext inlineIcon"></span>&nbspスプール</label>
+            <input type="radio" id="radio2" name="search_target" value="spool" />
+          </fieldset>
+        </div>
+      
+        <div class="ui-field-contain">
+          <fieldset data-role="controlgroup" data-type="horizontal">
+            <H3>全件検索(Offで10件まで表示)：</H3>
+            <input type="hidden" name="search_extended" value="0" />  <!-- Serialize対象にするための隠し変数 -->
+            <input type="checkbox" id="on-off-flip1" name="search_extended" data-role="flipswitch" value="1" />
+            <label for="on-off-flip1">全件表示</label>
+          </fieldset>
+        </div>
+        
+        <div class="ui-field-contain">
+          <H3>検索文字列：</H3>
+          <input type="search" id="text1" name="search_word" placeholder="検索文字列を入力" />
+          <label for="text1" class="ui-hidden-accessible">検索文字列</label>
+        </div>
+
+        <div class="ui-grid-a"> <!-- ボタンを横に並べる -->
+          <div class="ui-block-a">
+              <input class="ui-btn" type="submit" id="button1" value="検索の実行" data-icon="search" />
+          </div>    
+          <div class="ui-block-b">
+            <input class="ui-btn" type="submit" id="button2" value="索引の更新" data-icon="refresh" />
+          </div>    
+        </div>
+
+        <div class="overlay"></div>
+
+      </form>
+    </div>
+
+    <div data-role="footer" data-position="fixed">
+      <h3>Version 0.1, 2021-03-23</h3>
+    </div>
+  </div>
+
+  <!-- 検索結果リスト表示 -->
+  <div data-role="page" id="result_page" data-title="検索結果">
+
+    <div data-role="header" data-position="fixed">
+        <h1>検索結果</h1>
+        <a href="#search_page" class="ui-btn-left">戻る</a>
+    </div>
+
+    <div role="main" data-role="content">
+        <div>
+          検索語：<span class="keyword"></span>&nbsp;
+          表示件数：<span class="listview_count"></span>
+        </div>
+        <ul data-role="listview" data-inset="true" id="result_listview">
+        <!-- 検索結果がここに追加される -->
+        </ul>
+    </div>
+
+    <div data-role="footer" data-position="fixed">
+      <h3>Version 0.1, 2021-03-23</h3>
+    </div>
+
+  </div>
+  
+<script type="text/javascript">
+
+  $(function(){
+
+    // フォームにtype="hidden"のinput要素を追加
+    $('#form1').append('<input name="search_action" type="hidden" value="" />');
+     // ボタンクリック時、type="hidden"のinput要素に自分の値を設定
+    $('input').click(function(){
+      $('input[name=search_action]').val($(this).val());
+    });
+
+    $('#form1').submit(function(e) {
+      
+      // preventing the event generated by submitting the form and returning false from js so that the js function gets called but the form does not get submitted
+      e.preventDefault();
+
+      // alert($('input[name=search_action]').val() + 'ボタンが押された');
+
+      // 検索文字列の入力チェック
+      if(($('input[name=search_action').val() == '検索の実行') && $('#text1').val() === ''){
+        alert('検索文字列を入力してください。');
+        $('#text1').focus();
+        return false;
+      };
+
+      var form_data = $("#form1").serializeArray();
+      var JSON_send = {};
+      for (i = 0; i < form_data.length; i++) {
+        JSON_send[form_data[i].name] = form_data[i].value
+        switch (form_data[i].name){
+          case 'search_target':
+            var search_tgt = form_data[i].value;
+            break;
+          case 'search_extended':
+            var search_ext = form_data[i].value;
+            break;
+          case 'search_word':
+            var search_wrd = form_data[i].value;
+            break;
+           case 'search_action':
+            var search_act = form_data[i].value;
+            break;
+        };
+      };
+
+      // alert(JSON.stringify(JSON_send));
+
+      // REST APi URL設計
+      // api/fts/v1/search/ifs(:10) -> POST
+      // api/fts/v1/search/spl(:10) -> GET
+      // api/fts/v1/search/ifs/update -> PUT
+      // api/fts/v1/search/spl/update -> PUT
+      
+      // alert('対象:' + search_tgt + '、拡張:' + search_ext + '、検索語:' + search_wrd + '、処理:' + search_act);
+      var req_type;
+      var req_url;
+
+      switch (search_act){
+        case '検索の実行':
+          if (search_tgt == 'pcdoc') {
+            req_type = 'POST';
+            req_url = '/api/fts/v1/search/ifs';
+          } else { // spool
+            req_type = 'GET';
+            req_url = '/api/fts/v1/search/spl';
+          }
+          break;
+        case '索引の更新':
+          if (search_tgt == 'pcdoc') {
+            req_type = 'PUT';
+            req_url = '/api/fts/v1/update/ifs';
+          } else { // spool
+            req_type = 'PUT';
+            req_url = '/api/fts/v1/update/spl';
+          }
+          break;
+        default:
+          alert('ここは実行されないはず。');
+      };
+
+      // console.log('タイプ:' + req_type + '、URL:' + req_url);
+
+      $.ajax({
+        type : req_type,                    // method = "POST"
+        url  : req_url,                    // POST送信先のURL
+        data : JSON.stringify(JSON_send),  // JSONデータ本体
+        contentType: 'application/json',  // リクエストの Content-Type
+        dataType : "json",                // レスポンスをJSONとしてパースする
+      })
+
+      .done(function(data){               // 通信に成功 
+        // alert('Success!\n' + data);
+        // console.log(data);
+        const json_obj = JSON.parse(data);  // JSON文字列をJSONオブジェクトに変換
+        if (req_type == "POST"){doPOST(json_obj)};
+        if (req_type == "GET"){doGET(json_obj)};
+        if (req_type == "PUT"){doPUT(search_tgt)};
+        if (req_type != "POST" && req_type != "GET" && req_type != "PUT"){
+          alert("指定されたmethod " + req_type + ' が処理対象外。');
+        };
+      })
+      
+      .fail(function(jqXHR, textStatus, errorThrown){ // 通信に失敗
+        let errMsg = 'ajax通信でエラーが検出されました。\n' +
+                     'jqXHR       : ' + jqXHR.status + '\n' +         // HTTPステータスが取得
+                     'textStatus  : ' + textStatus + '\n' +          // タイムアウト、パースエラー
+                     'errorThrown : ' + errorThrown.message + '\n' + // 例外情報
+                     'URL         : ' + req_url;
+        alert(errMsg);
+      })      
+      
+      .always(function(data){
+        // alert('always!');
+      })
+  
+    });
+
+  });
+
+  // POST要求 → IFSの検索
+  function doPOST(json_obj){
+    
+    $("#result_listview").empty(); // refresh the list
+    let li_count = 0;
+
+    $.each(json_obj, function(){
+
+      let filename = json_obj[li_count].OBJECT_NAME.split('/').pop();
+      let extension = json_obj[li_count].OBJECT_NAME.split('.').pop();
+      // console.log(extension);
+      let icon_ext = extension.substr(0, 3).toLowerCase();
+      // console.log(icon_ext);
+      if (icon_ext == 'xls' || icon_ext == 'doc' || icon_ext == 'ppt' || icon_ext == 'pdf' || icon_ext == 'txt'){
+        lv_icon_file = icon_ext + ".png";
+      } else {
+        lv_icon_file = "file.png";
+      };
+
+      $('#result_listview').append(
+        '<li data-icon="false">' +
+          '<a href="' + json_obj[li_count].OBJECT_NAME.substr(10) + '" data-ajax="false" target="_blank">' +
+          '<img src="/image/' + lv_icon_file + '" class="ui-li-icon ui-corner-none">' +
+          '<span style="white-space:pre-line;">' + filename + '</span>' +
+          // '<P>最終更新日：' + dt.toLocaleString() + '</p>' +  -> Safariでinvalidエラーとなる
+          '<P>最終更新：' + json_obj[li_count].MODIFY_TIME.substr(0, 19) + '</p>' +
+          '<span class="ui-li-count">' + json_obj[li_count].SCORE + '</span></a></li>'
+      );
+      li_count++;
+    });
+
+    $('.keyword').text($('#text1').val());
+    $('.listview_count').text(li_count);
+
+    $("#result_listview").listview().listview('refresh'); // refresh the list
+    $('body').pagecontainer('change', '#result_page', { transition: 'fade' } );
+  }
+
+  // GET要求 → SPOOLの検索
+  function doGET(json_obj){
+    
+    $("#result_listview").empty(); // refresh the list
+    let li_count = 0;
+
+    $.each(json_obj, function(){
+
+      let spool_job = ('000000' + json_obj[li_count].JOB_NBR).slice(-6) + '/' + 
+                      json_obj[li_count].USER_NAME.trim() + '/' + json_obj[li_count].JOB_NAME;
+      // console.log(spool_job);
+      if (json_obj[li_count].SPOOL_NAME.substr(0, 1) == "Q"){
+        lv_icon_file = "sys.png";
+      } else {
+        lv_icon_file = "usr.png";
+      };
+      // console.log(lv_icon_file);
+
+      $('#result_listview').append(
+        '<li data-icon="false">' +
+          '<a href="/spl2txt?spl_job=' + spool_job +
+                           '&spl_nam=' + json_obj[li_count].SPOOL_NAME.trim() + 
+                           '&spl_nbr=' + json_obj[li_count].SPOOL_NBR + 
+            '" data-ajax="false" target="_blank">' +
+          '<img src="/image/' + lv_icon_file + '" class="ui-li-icon ui-corner-none">' +
+          '<span style="white-space:pre-line;">' + json_obj[li_count].SPOOL_NAME + '</span>' +
+          '<p class="ui-li-aside">' + spool_job + '<br>' +
+          'スプール番号：' + json_obj[li_count].SPOOL_NBR + '&nbsp&nbsp&nbsp&nbsp</p>' +
+          '<P>最終更新：' + json_obj[li_count].MODIFY_TIME.substr(0, 19) + '</p>' +
+          '<span class="ui-li-count">' + json_obj[li_count].SCORE + '</span></a></li>'
+      );
+      li_count++;
+    });
+
+    $('.keyword').text($('#text1').val());
+    $('.listview_count').text(li_count);
+
+    $("#result_listview").listview().listview('refresh'); // refresh the list
+    $('body').pagecontainer('change', '#result_page', { transition: 'fade' } );
+  }
+
+  // PUT要求 → 索引の更新
+  function doPUT(search_tgt){
+    if (search_tgt == 'pcdoc'){
+      alert("PC文書の索引更新終了。");
+    } else {
+      alert("スプールの索引更新終了。");
+    }
+  }
+
+  $(document).on({
+    ajaxStart: function(){
+        $("body").addClass("loading"); 
+    },
+    ajaxStop: function(){ 
+        $("body").removeClass("loading"); 
+    }    
+  });
+
+</script>    
+
+</body>
+</html>

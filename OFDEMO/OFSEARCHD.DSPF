@@ -1,0 +1,129 @@
+     A**************************************************************************
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      PRINT
+     A                                      INDARA
+     A                                      ALTPAGEUP(CF07)
+     A                                      ALTPAGEDWN(CF08)
+     A**************************************************************************
+     A*見出し（検索キー入力）レコード
+     A*
+     A          R HEADER
+     A                                      CHGINPDFT
+     A                                      CA03(03 '終了')
+     A                                      CA14(14 'IFS索引更新')
+     A                                      CA16(16 'SPL索引更新')
+     A                                      OVERLAY
+     A*
+     A*  見出し→標識60オフ、一覧→標識60オン
+     A                                  1  2'OFSEARCHD'
+     A            PGMNAM        10A  O  1 12COLOR(WHT)
+     A*
+     A                                  1 31' * * IFS/SPL検索* * '
+     A                                      DSPATR(HI)
+     A                                      DSPATR(RI)
+     A*
+     A                                  1 63DATE
+     A                                      EDTCDE(Y)
+     A                                  1 72TIME
+     A                                  3 12'検索語'
+     A N60                                  COLOR(WHT)
+     A*
+     A            SEARCHWRD     34O  B  3 21DSPATR(UL)
+     A                                      DSPATR(PC)
+     A  60                                  COLOR(PNK)
+     A  60                                  DSPATR(PR)
+     A  60                                  DSPATR(CS)
+     A*
+     A N60        SEARCHTGT      2Y 0B  3 59SNGCHCFLD((*NUMCOL 2) (*GUTTER 2))
+     A                                      CHOICE(1 'IFS')
+     A                                      CHOICE(2 'SPL')
+     A N60        SEARCHLMT      2Y 0B  4 59SNGCHCFLD((*NUMCOL 2) (*GUTTER 2))
+     A                                      CHOICE(1 '20')
+     A                                      CHOICE(2 'MAX')
+     A*
+     A  60                              3  2'5:DSP'
+     A  60        SEARCHARG     22      3 56
+     A  60                              4  2'|'
+     A  60                              4 57'ヒット数'
+     A  60        RCDNUM         4Y 0O    +1EDTCDE(2)
+     A                                      COLOR(PNK)
+     A**************************************************************************
+     A*サブファイル・レコード
+     A          R MEISFL                    SFL
+     A            OPTION         1A  B  6  2
+     A  50                                  DSPATR(RI)
+     A  50                                  DSPATR(PC)
+     A                                      DSPATR(CS)
+     A            SCORE     R        O  6  4REFFLD(SCORE IFSRESULT)
+     A                                      EDTCDE(3)
+     A                                      COLOR(PNK)
+     A            SFLLIN1       66A  O  6 10
+     A  70                                  COLOR(WHT)
+     A            SFLLIN2       66A  O  7 10COLOR(GRN)
+     A*
+     A            IFSPATH     2048A  H
+     A**************************************
+     A*サブファイル制御レコード
+     A          R MEICTL                    SFLCTL(MEISFL)
+     A                                      SFLSIZ(0009)
+     A                                      SFLPAG(0008)
+     A                                      OVERLAY
+     A                                      CA03(03 '終了')
+     A                                      CA12(12 '戻る')
+     A                                      MOUBTN(*ULD ENTER)
+     A                                      SFLCSRRRN(&@SRRN)
+     A  31                                  SFLDSPCTL
+     A  31                                  SFLDSP
+     A  32                                  SFLCLR
+     A  33                                  SFLEND(*SCRBAR *SCRBAR)
+     A*
+     A            @SRRN          5S 0H
+     A            @SPLOC         4S 0H      SFLRCDNBR(CURSOR)
+      *サブファイル・ヘッダー・レコード
+     A                                  5  2'|'
+     A                                  5  4'SCORE 情報                   -
+     A                                                                      -
+     A                                               '
+     A                                      COLOR(WHT) DSPATR(UL)
+      *
+     A**************************************************************************
+     A*フッター（機能キーガイド）
+     A*  見出し→標識60オフ、一覧→標識60オン
+     A*
+     A          R FOOTER
+     A*
+     A N60        PSEARCH        2Y 0B 23  3PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'ENTER=検索')
+     A*
+     A N60        PEXIT          2Y 0B    +2PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'F3=終了' CA03)
+     A*
+     A N60        UPDIFS         2Y 0B    +4PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'F14=IFS索引更新' CA1-
+     A                                      4)
+     A*
+     A N60        UPDSPL         2Y 0B    +2PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'F16=SPL索引更新' CA1-
+     A                                      6)
+     A*
+     A  60        PENTER         2Y 0B 23  3PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'ENTER=表示')
+     A*
+     A  60        PCANCL         2Y 0B    +4PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'F3/12=戻る' CA03)
+     A*
+     A  60        PPREV          2Y 0B    +4PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'F7=前' ROLLDOWN)
+     A*
+     A  60        PNEXT          2Y 0B    +2PSHBTNFLD
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      PSHBTNCHC(1 'F8=次' ROLLUP)
+     A*
+     A  50        MSGDTA        78O  O 24  2DSPATR(HI)
