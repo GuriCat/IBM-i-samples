@@ -244,6 +244,9 @@ bash-5.1$
    
 - Node.jsのバージョン14をデフォルトとして使用  
 
+※ 直接Node.jsのバイナリを指定する場合は「[Setting the Node.js major version](https://ibmi-oss-docs.readthedocs.io/en/latest/nodejs/README.html)」を参照  
+※ [IBMの資料](https://ibmi-oss-docs.readthedocs.io/en/latest/nodejs/README.html#setting-the-node-js-major-version)ではnodeverを紹介しているが、「[Goodbye, Nodever! Hello, update-alternatives!](https://techchannel.com/SMB/05/2020/update-alternatives)」によると非推奨     
+※ alternativesはRed Hat系の拡張で全環境のデフォルトを変更する。開発/テスト/教育などでPythonの仮想環境を複数用意する場合はnpmで制御  
 ※ 実行時エラーが発生する場合は他のnodeバージョンを試して切り分けを行う。関連モジュールによってはnodeのバージョン10などでも稼働する  
 
 
