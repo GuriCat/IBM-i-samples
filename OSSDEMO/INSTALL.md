@@ -149,7 +149,8 @@ altairは地理情報をインターネット上の https://raw.githubuserconten
 ### Pythonバージョンの確認と設定
 
 Pythonのデフォルトバージョンを確認し、3.6以外の場合は alternatives コマンドで3.6に変更。  
-※ 直接Pythonバイナリを指定する場合は不要
+
+※ 直接Pythonバイナリを指定する場合は不要  
 ※ alternativesはRed Hat系の拡張で全環境のデフォルトを変更する。開発/テスト/教育などでPythonの仮想環境を複数用意する場合はPython3系標準のvenvを推奨
 
 ~~~
