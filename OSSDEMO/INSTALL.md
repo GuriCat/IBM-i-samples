@@ -118,7 +118,7 @@ CLLEプログラム「CLLE4」の環境依存部分を、下記の要領でソ�
 
 - [3行目](CLLE4.CLLE#L3)の「VALUE(IBMI)」の値をIBM i のホスト名またはIPアドレスに変更
 - [5行目](CLLE4.CLLE#L5)の「VALUE('/tmp/OSSGRAPH/')」の値を一時グラフファイルを格納するディレクトリーに変更
-- [69行目](CLLE4.CLLE#L69)、[79行目](CLLE4.CLLE#L79)、[89行目](CLLE4.CLLE#L89)、[99行目](CLLE4.CLLE#L99)、の「/home/GURI/ossdemo/」をストリームファイルを配置したディレクトリーに変更
+- [69行目](CLLE4.CLLE#L69)、[79行目](CLLE4.CLLE#L79)、[89行目](CLLE4.CLLE#L89)、[99行目](CLLE4.CLLE#L99)、の「/home/ユーザー/ossdemo/」をストリームファイルを配置したディレクトリーに変更
   
 
 それぞれ、CRTDSPF、CRTBNDCLでコンパイル。  
