@@ -108,7 +108,8 @@ bash-5.1$ mkdir /tmp/OSSGRAPH
 
 #### CLLEプログラム「CLLE4」
 
-ソースファイルOSSDEMOのメンバーCLLE4を変更。
+ソースファイルOSSDEMOのメンバーCLLE4を変更。  
+※ CCSID 5026(日本語カナ)のソースに英小文字(CCSID 1027)を使用しているので、ホスト・コード・ページ 939または1399の5250セッションを使用し、CHGJOB CCSID(5035または1399)を実行してから編集。  
 
 - [3行目](CLLE4.CLLE#L3)の「VALUE(IBMI)」の値をIBM i のホスト名またはIPアドレスに変更
 - [5行目](CLLE4.CLLE#L5)の「VALUE('/tmp/OSSGRAPH/')」の値を一時グラフファイルを格納するディレクトリーに変更
