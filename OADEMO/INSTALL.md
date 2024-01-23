@@ -86,7 +86,7 @@ Excel変換用のワークファイル(CSV/パラメーターファイル)を配
 
 作成したワークディレクトリーをNavigator for iからファイル共有を設定。
 
-
+<img src="Navigator for i のファイル共有画面.PNG" width="500">
 
 ***
 
