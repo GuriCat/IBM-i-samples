@@ -259,7 +259,7 @@ select * from QSYS2.SYSTEXTSERVERS
 > RUNQRY QRYFILE((QSYS2/SYSTXTSRVR)) 
 ~~~
 
-デフォルトサーバー構成ファイルにレコードが存在しない場合はSQLで「CALL SYSPROC.SYSTS_START()」を実行。
+**デフォルトサーバー構成ファイルにレコードが存在しない場合は対話型SQLやSQLスクリプトなどで「CALL SYSPROC.SYSTS_START()」を実行し、1レコード作成されることを確認。**
 
 
 各カラムの初期値を下表に示す。
