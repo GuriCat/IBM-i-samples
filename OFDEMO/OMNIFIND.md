@@ -250,6 +250,8 @@ SELECT PTF_IDENTIFIER, PTF_IPL_ACTION, A.*
    ユーザー・プロファイル QDBTS が変更された。
 ~~~
 
+**ユーザープロフィールQDBTSの状況(STATUS)が*DISABLEDになっている場合は*ENABLEDに変更。**
+
 出荷時に提供されるOmniFindのデフォルトサーバー構成ファイルの内容を確認。
 ~~~
 select * from QSYS2.SYSTEXTSERVERS
@@ -261,7 +263,7 @@ select * from QSYS2.SYSTEXTSERVERS
 
 <br>
 
-**デフォルトサーバー構成ファイルにレコードが存在しない場合は、対話型SQLやSQLスクリプトなどで「CALL SYSPROC.SYSTS_START()」を実行し、1レコード作成されることを確認。**
+**デフォルトサーバー構成ファイルにレコードが存在しない場合は、対話型SQLやSQLスクリプトなどで「CALL SYSPROC.SYSTS_START()」を実行し、デフォルトサーバーの構成として1レコード作成されることを確認。**
 
 <br>
 
