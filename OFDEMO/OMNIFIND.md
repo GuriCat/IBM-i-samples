@@ -250,6 +250,8 @@ SELECT PTF_IDENTIFIER, PTF_IPL_ACTION, A.*
    ユーザー・プロファイル QDBTS が変更された。
 ~~~
 
+<br>
+
 **ユーザープロフィールQDBTSの状況(STATUS)が*DISABLEDになっている場合は*ENABLEDに変更。**
 
 出荷時に提供されるOmniFindのデフォルトサーバー構成ファイルの内容を確認。
