@@ -123,7 +123,7 @@ WRKSPLF、WRKJOB OPTION(*SPLF)、WRKOUTQ (OUTQ名)など、システム提供ス
 
 
 ***
-## 高品質な帳票生成とPDF化
+## AFP(高機能印刷)による帳票生成とPDF化
 
 RPGで画像・QRコード・罫線・アウトラインフォントを含むAFP(高機能印刷)スプールファイルを生成して、PDF([出力例](AFPPRTF_サンプル出力.pdf))でPCに表示。  
 githubでPDF全体が表示されない場合は、ローカルにダウンロードしてAdobe Readerで開く。
