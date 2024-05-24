@@ -34,7 +34,7 @@ IBM i 7.4、7.5で動作を確認、より古いバージョンは未テスト�
 ||5250表示属性一覧|CLP|全て|〃|
 |[ワン(ノー)アクション連携](/OADEMO)|DB⇒Excel変換＆表示|CMD/CLLE/VBA|V3以降|
 ||スプール⇒PDF変換＆表示|CLLE/RPG400|6.1以降 ※|
-||高品質な帳票生成とPDF化|CLLE/ILE-RPG|7.3以降| 
+||AFP(高機能印刷)による帳票生成とPDF化|CLLE/ILE-RPG|7.3以降| 
 |[オープンソース活用例](/OSSDEMO)|Db2 for iのデータを棒グラフや日本地図に視覚化|CLLE/Python3.6|〃|
 |[複数区画/サーバー集中管理](/IBMISVC)|一括稼働状況表示|SQLRPGLE|〃|
 ||一括動作時刻表示|SQLRPGLE|〃|
