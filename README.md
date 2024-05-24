@@ -1,5 +1,8 @@
 # IBM-i-samples
 
+> [!CAUTION]
+> Advises about risks or negative outcomes of certain actions.
+
 ## Overview
 
 IBM i の標準的な機能を利用したサンプルプログラム集です。
